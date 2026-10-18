@@ -1,0 +1,40 @@
+name: GiftLink CI
+on:
+  push:
+  pull_request:
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install backend dependencies
+        run: npm install --no-audit --no-fund
+        working-directory: giftlink-backend
+      - name: Check backend syntax
+        run: |
+          node --check app.js
+          node --check db.js
+          node --check routes/giftRoutes.js
+          node --check routes/searchRoutes.js
+          node --check routes/authRoutes.js
+        working-directory: giftlink-backend
+      - name: Verify 16 seed documents
+        run: node -e "if(require('./data/gifts.json').length!==16)process.exit(1)"
+        working-directory: giftlink-backend
+      - name: Install frontend dependencies
+        run: npm install --no-audit --no-fund
+        working-directory: giftlink-frontend
+      - name: Build frontend
+        run: npm run build
+        working-directory: giftlink-frontend
+      - name: Install sentiment dependencies
+        run: npm install --no-audit --no-fund
+        working-directory: sentiment
+      - name: Check sentiment syntax
+        run: node --check index.js
+        working-directory: sentiment
