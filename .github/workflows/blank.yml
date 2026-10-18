@@ -1,0 +1,48 @@
+
+name: Fullstack Capstone CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify repository
+        run: |
+          echo "Checking project files"
+          ls -la
+
+      - name: Install backend dependencies
+        run: |
+          if [ -f giftlink-backend/package.json ]; then
+            cd giftlink-backend
+            npm install
+          else
+            echo "Backend files not yet uploaded"
+          fi
+
+      - name: Run backend tests
+        run: |
+          if [ -f giftlink-backend/package.json ]; then
+            cd giftlink-backend
+            npm test
+          else
+            echo "Backend tests unavailable"
+          fi
+
+      - name: Complete workflow
+        run: echo "CI/CD workflow completed"
